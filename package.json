@@ -5,7 +5,7 @@
   "author": "uhjinkim9",
   "license": "MIT",
   "type": "module",
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -27,8 +27,7 @@
     "build:watch": "tsup --watch",
     "dev": "vite",
     "type-check": "tsc --noEmit",
-    "prepare": "npm run build",
-    "prepublishOnly": "npm run build"
+    "prepare": "npm run build"
   },
   "peerDependencies": {
     "react": ">=18.0.0",
