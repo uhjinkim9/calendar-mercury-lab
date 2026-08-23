@@ -1,0 +1,452 @@
+/* ──────────────────────────────────────────────────────────────────────────────
+   calendar-mercury-lab — CSS Variables & Responsive Grid
+   Override any variable on the consumer side:
+     .my-calendar { --kc-primary: #e74c3c; }
+   ────────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  --kc-bg: #ffffff;
+  --kc-surface: #f8f9fa;
+  --kc-border: #e2e8f0;
+  --kc-text: #1a202c;
+  --kc-text-muted: #718096;
+  --kc-primary: #3182ce;
+  --kc-primary-light: #ebf4ff;
+  --kc-holiday: #e53e3e;
+  --kc-today-bg: #ebf8ff;
+  --kc-weekend: #fc8181;
+  --kc-event-radius: 4px;
+  --kc-cell-min-height: 90px;
+  --kc-header-height: 48px;
+  --kc-font: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --kc-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --kc-radius: 8px;
+  --kc-transition: 150ms ease;
+}
+
+/* ─── Root wrapper ─────────────────────────────────────────────────────────── */
+
+.kc-root {
+  font-family: var(--kc-font);
+  background: var(--kc-bg);
+  color: var(--kc-text);
+  border: 1px solid var(--kc-border);
+  border-radius: var(--kc-radius);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* ─── Toolbar ──────────────────────────────────────────────────────────────── */
+
+.kc-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--kc-surface);
+  border-bottom: 1px solid var(--kc-border);
+  min-height: var(--kc-header-height);
+  flex-wrap: wrap;
+}
+
+.kc-toolbar__title {
+  font-size: 1rem;
+  font-weight: 600;
+  flex: 1;
+  text-align: center;
+}
+
+.kc-toolbar__btn {
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--kc-border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--kc-text);
+  transition: background var(--kc-transition);
+}
+
+.kc-toolbar__btn:hover {
+  background: var(--kc-primary-light);
+}
+
+.kc-toolbar__btn--active {
+  background: var(--kc-primary);
+  color: #fff;
+  border-color: var(--kc-primary);
+}
+
+/* ─── Calendar source legend ───────────────────────────────────────────────── */
+
+.kc-legend {
+  display: flex;
+  gap: 12px;
+  padding: 8px 16px;
+  background: var(--kc-surface);
+  border-bottom: 1px solid var(--kc-border);
+  flex-wrap: wrap;
+}
+
+.kc-legend__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.kc-legend__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.kc-legend__item--hidden {
+  opacity: 0.4;
+}
+
+/* ─── Day-of-week header row ───────────────────────────────────────────────── */
+
+.kc-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: var(--kc-surface);
+  border-bottom: 1px solid var(--kc-border);
+}
+
+.kc-weekdays__cell {
+  text-align: center;
+  padding: 6px 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--kc-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.kc-weekdays__cell--sun {
+  color: var(--kc-holiday);
+}
+.kc-weekdays__cell--sat {
+  color: var(--kc-primary);
+}
+
+/* ─── Month Grid ───────────────────────────────────────────────────────────── */
+
+.kc-month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  flex: 1;
+}
+
+.kc-day-cell {
+  position: relative;
+  min-height: var(--kc-cell-min-height);
+  border-right: 1px solid var(--kc-border);
+  border-bottom: 1px solid var(--kc-border);
+  padding: 4px;
+  cursor: pointer;
+  transition: background var(--kc-transition);
+  overflow: hidden;
+}
+
+.kc-day-cell:nth-child(7n) {
+  border-right: none;
+}
+
+.kc-day-cell:hover {
+  background: var(--kc-primary-light);
+}
+
+.kc-day-cell--outside {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.kc-day-cell--today {
+  background: var(--kc-today-bg);
+}
+
+.kc-day-cell--today .kc-day-cell__number {
+  background: var(--kc-primary);
+  color: #fff;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kc-day-cell__number {
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+.kc-day-cell--sunday .kc-day-cell__number {
+  color: var(--kc-holiday);
+}
+.kc-day-cell--saturday .kc-day-cell__number {
+  color: var(--kc-primary);
+}
+
+.kc-day-cell__holiday {
+  font-size: 0.65rem;
+  color: var(--kc-holiday);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ─── Events ───────────────────────────────────────────────────────────────── */
+
+.kc-event-chip {
+  display: block;
+  font-size: 0.7rem;
+  border-radius: var(--kc-event-radius);
+  padding: 1px 5px;
+  margin-top: 2px;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: opacity var(--kc-transition);
+}
+
+.kc-event-chip:hover {
+  opacity: 0.85;
+}
+
+.kc-event-chip--more {
+  background: transparent;
+  color: var(--kc-text-muted);
+  font-size: 0.65rem;
+}
+
+/* ─── Week View ────────────────────────────────────────────────────────────── */
+
+.kc-week-grid {
+  display: grid;
+  grid-template-columns: 56px repeat(7, 1fr);
+  flex: 1;
+  overflow-y: auto;
+}
+
+.kc-week-grid__time-col {
+  border-right: 1px solid var(--kc-border);
+  font-size: 0.7rem;
+  color: var(--kc-text-muted);
+}
+
+.kc-week-grid__time-slot {
+  height: 48px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 2px 6px 0 0;
+  border-bottom: 1px solid var(--kc-border);
+}
+
+.kc-week-grid__day-col {
+  border-right: 1px solid var(--kc-border);
+  position: relative;
+}
+
+.kc-week-grid__day-col:last-child {
+  border-right: none;
+}
+
+.kc-week-grid__slot {
+  height: 48px;
+  border-bottom: 1px solid var(--kc-border);
+  position: relative;
+}
+
+.kc-week-grid__day-header {
+  text-align: center;
+  padding: 8px 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--kc-border);
+  background: var(--kc-surface);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* ─── Day View ─────────────────────────────────────────────────────────────── */
+
+.kc-day-view {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* ─── Year View ────────────────────────────────────────────────────────────── */
+
+.kc-year-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  padding: 16px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.kc-mini-month {
+  border: 1px solid var(--kc-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.kc-mini-month__header {
+  background: var(--kc-surface);
+  text-align: center;
+  padding: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--kc-border);
+}
+
+.kc-mini-month__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.kc-mini-day {
+  text-align: center;
+  padding: 3px 2px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background var(--kc-transition);
+}
+
+.kc-mini-day:hover {
+  background: var(--kc-primary-light);
+}
+.kc-mini-day--today {
+  background: var(--kc-primary);
+  color: #fff;
+  border-radius: 50%;
+}
+.kc-mini-day--outside {
+  color: var(--kc-text-muted);
+  opacity: 0.4;
+}
+.kc-mini-day--has-event::after {
+  content: "";
+  display: block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--kc-primary);
+  margin: 1px auto 0;
+}
+
+/* ─── Dropdown Popover ─────────────────────────────────────────────────────── */
+
+.kc-popover {
+  position: fixed;
+  z-index: 9999;
+  background: var(--kc-bg);
+  border: 1px solid var(--kc-border);
+  border-radius: var(--kc-radius);
+  box-shadow: var(--kc-shadow);
+  min-width: 160px;
+  padding: 4px 0;
+  animation: kc-popover-in 120ms ease;
+}
+
+@keyframes kc-popover-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.kc-popover__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--kc-text);
+  text-align: left;
+  transition: background var(--kc-transition);
+}
+
+.kc-popover__item:hover {
+  background: var(--kc-primary-light);
+}
+
+.kc-popover__item--danger {
+  color: var(--kc-holiday);
+}
+.kc-popover__item--danger:hover {
+  background: #fff5f5;
+}
+
+.kc-popover__divider {
+  height: 1px;
+  background: var(--kc-border);
+  margin: 4px 0;
+}
+
+/* ─── Responsive ───────────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .kc-year-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .kc-day-cell {
+    --kc-cell-min-height: 60px;
+    padding: 2px;
+  }
+
+  .kc-toolbar__title {
+    font-size: 0.9rem;
+  }
+
+  .kc-event-chip {
+    display: none; /* show only dot indicator on very small cells */
+  }
+
+  .kc-day-cell::after {
+    content: "";
+    display: block;
+  }
+}
+
+@media (max-width: 480px) {
+  .kc-year-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .kc-toolbar {
+    padding: 8px;
+    gap: 4px;
+  }
+}
