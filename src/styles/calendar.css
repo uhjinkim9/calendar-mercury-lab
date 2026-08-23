@@ -42,13 +42,29 @@
 
 .kc-toolbar {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
+  flex-direction: column;
   background: var(--kc-surface);
   border-bottom: 1px solid var(--kc-border);
-  min-height: var(--kc-header-height);
-  flex-wrap: wrap;
+  padding: 8px 16px;
+  gap: 6px;
+}
+
+.kc-toolbar__nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.kc-toolbar__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.kc-toolbar__views {
+  display: flex;
+  gap: 4px;
 }
 
 .kc-toolbar__title {
@@ -425,7 +441,7 @@
   }
 
   .kc-toolbar__title {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
   }
 
   .kc-event-chip {
@@ -446,7 +462,6 @@
   }
 
   .kc-toolbar {
-    padding: 8px;
-    gap: 4px;
+    padding: 6px 10px;
   }
 }

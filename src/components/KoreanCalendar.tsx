@@ -389,7 +389,19 @@ function WeekView({
               ))}
             </div>
             {HOURS.map((h) => (
-              <div key={h} className="kc-week-grid__slot" />
+              <div
+                key={h}
+                className="kc-week-grid__slot"
+                style={{ cursor: "pointer" }}
+                onClick={(e) =>
+                  onCellClick(
+                    dateStr,
+                    (e.currentTarget as HTMLElement).getBoundingClientRect(),
+                    e.clientX,
+                    e.clientY,
+                  )
+                }
+              />
             ))}
           </div>
         );
@@ -407,6 +419,12 @@ interface DayViewProps {
   holidays: Map<string, Holiday>;
   visibleCalendarIds: Set<string>;
   calendarColorMap: Map<string, string>;
+  onCellClick: (
+    date: string,
+    rect: DOMRect,
+    clientX: number,
+    clientY: number,
+  ) => void;
   onEventClick: (event: CalendarEvent) => void;
 }
 
@@ -417,6 +435,7 @@ function DayView({
   holidays,
   visibleCalendarIds,
   calendarColorMap,
+  onCellClick,
   onEventClick,
 }: DayViewProps) {
   const dateStr = toDateString(date);
@@ -469,7 +488,19 @@ function DayView({
           ))}
         </div>
         {HOURS.map((h) => (
-          <div key={h} className="kc-week-grid__slot" />
+          <div
+            key={h}
+            className="kc-week-grid__slot"
+            style={{ cursor: "pointer" }}
+            onClick={(e) =>
+              onCellClick(
+                dateStr,
+                (e.currentTarget as HTMLElement).getBoundingClientRect(),
+                e.clientX,
+                e.clientY,
+              )
+            }
+          />
         ))}
       </div>
     </div>
@@ -699,45 +730,51 @@ export function KoreanCalendar({
     <div className={`kc-root ${className}`} data-view={view}>
       {/* ── Toolbar ── */}
       <div className="kc-toolbar">
-        <button
-          className="kc-toolbar__btn"
-          onClick={() => navigate(-1)}
-          aria-label="이전"
-        >
-          ‹
-        </button>
-        <button
-          className="kc-toolbar__btn"
-          onClick={() => {
-            setCurrentDate(new Date());
-            onNavigate?.(today);
-          }}
-        >
-          오늘
-        </button>
-        <button
-          className="kc-toolbar__btn"
-          onClick={() => navigate(1)}
-          aria-label="다음"
-        >
-          ›
-        </button>
-        <span className="kc-toolbar__title">{titleLabel}</span>
-        {(["day", "week", "month", "year"] as CalendarView[]).map((v) => (
+        <div className="kc-toolbar__nav">
           <button
-            key={v}
-            className={`kc-toolbar__btn${view === v ? " kc-toolbar__btn--active" : ""}`}
-            onClick={() => changeView(v)}
+            className="kc-toolbar__btn"
+            onClick={() => navigate(-1)}
+            aria-label="이전"
           >
-            {v === "day"
-              ? "일"
-              : v === "week"
-                ? "주"
-                : v === "month"
-                  ? "월"
-                  : "연"}
+            ‹
           </button>
-        ))}
+          <span className="kc-toolbar__title">{titleLabel}</span>
+          <button
+            className="kc-toolbar__btn"
+            onClick={() => navigate(1)}
+            aria-label="다음"
+          >
+            ›
+          </button>
+        </div>
+        <div className="kc-toolbar__actions">
+          <button
+            className="kc-toolbar__btn"
+            onClick={() => {
+              setCurrentDate(new Date());
+              onNavigate?.(today);
+            }}
+          >
+            오늘
+          </button>
+          <div className="kc-toolbar__views">
+            {(["day", "week", "month", "year"] as CalendarView[]).map((v) => (
+              <button
+                key={v}
+                className={`kc-toolbar__btn${view === v ? " kc-toolbar__btn--active" : ""}`}
+                onClick={() => changeView(v)}
+              >
+                {v === "day"
+                  ? "일"
+                  : v === "week"
+                    ? "주"
+                    : v === "month"
+                      ? "월"
+                      : "연"}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* ── Calendar source legend ── */}
@@ -805,6 +842,7 @@ export function KoreanCalendar({
             visibleCalendarIds ?? new Set(events.map((e) => e.calendarId))
           }
           calendarColorMap={calendarColorMap}
+          onCellClick={handleCellClick}
           onEventClick={handleEventClick}
         />
       )}
