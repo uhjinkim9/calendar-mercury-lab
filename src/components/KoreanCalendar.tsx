@@ -91,12 +91,12 @@ interface PopoverProps {
 
 function Popover({ payload, onAction, onClose, renderDropdown }: PopoverProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const { anchorRect, date, events } = payload;
+  const { clientX, clientY, date, events } = payload;
 
-  // Position below the clicked cell
+  // Clamp so popover never overflows the right/bottom edge
   const style: React.CSSProperties = {
-    top: anchorRect.bottom + window.scrollY + 4,
-    left: Math.min(anchorRect.left + window.scrollX, window.innerWidth - 180),
+    top: clientY + window.scrollY + 8,
+    left: Math.min(clientX + window.scrollX + 8, window.innerWidth - 180),
   };
 
   useEffect(() => {
@@ -633,12 +633,14 @@ export function KoreanCalendar({
   }
 
   const handleCellClick = useCallback(
-    (dateStr: string, rect: DOMRect) => {
+    (dateStr: string, rect: DOMRect, clientX: number, clientY: number) => {
       const dayEvents = getEventsForDate(events, dateStr, visibleCalendarIds);
       const payload: CellClickPayload = {
         date: dateStr,
         events: dayEvents,
         anchorRect: rect,
+        clientX,
+        clientY,
       };
       onCellClick?.(payload);
       setPopover(payload);

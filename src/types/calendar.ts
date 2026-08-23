@@ -62,6 +62,8 @@ export interface CellClickPayload {
   date: string; // 'YYYY-MM-DD'
   events: CalendarEvent[];
   anchorRect: DOMRect;
+  clientX: number;
+  clientY: number;
 }
 
 export type DropdownAction = "create" | "edit" | "delete";
