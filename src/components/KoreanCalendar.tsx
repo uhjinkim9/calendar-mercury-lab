@@ -177,7 +177,7 @@ interface MonthViewProps {
   holidays: Map<string, Holiday>;
   visibleCalendarIds: Set<string>;
   calendarColorMap: Map<string, string>;
-  onCellClick: (date: string, rect: DOMRect) => void;
+  onCellClick: (date: string, rect: DOMRect, clientX: number, clientY: number) => void;
   onEventClick: (event: CalendarEvent) => void;
 }
 
@@ -234,6 +234,8 @@ function MonthView({
                 onCellClick(
                   dateStr,
                   (e.currentTarget as HTMLElement).getBoundingClientRect(),
+                  e.clientX,
+                  e.clientY,
                 )
               }
               role="button"
@@ -244,6 +246,8 @@ function MonthView({
                 onCellClick(
                   dateStr,
                   (e.currentTarget as HTMLElement).getBoundingClientRect(),
+                  0,
+                  0,
                 )
               }
             >
@@ -294,7 +298,7 @@ interface WeekViewProps {
   holidays: Map<string, Holiday>;
   visibleCalendarIds: Set<string>;
   calendarColorMap: Map<string, string>;
-  onCellClick: (date: string, rect: DOMRect) => void;
+  onCellClick: (date: string, rect: DOMRect, clientX: number, clientY: number) => void;
   onEventClick: (event: CalendarEvent) => void;
 }
 
@@ -343,6 +347,8 @@ function WeekView({
                 onCellClick(
                   dateStr,
                   (e.currentTarget as HTMLElement).getBoundingClientRect(),
+                  e.clientX,
+                  e.clientY,
                 )
               }
               style={{ cursor: "pointer" }}
