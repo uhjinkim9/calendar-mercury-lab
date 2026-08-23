@@ -18,7 +18,11 @@ Next.js & React 기반의 반응형 · 다중 캘린더 라이브러리입니다
 
 ## 설치
 
-### GitHub에서 직접 설치 (npm 배포 전)
+```bash
+npm install calendar-mercury-lab
+```
+
+### GitHub에서 직접 설치
 
 ```bash
 npm install github:uhjinkim9/calendar-mercury-lab
@@ -28,12 +32,6 @@ npm install github:uhjinkim9/calendar-mercury-lab
 
 ```bash
 npm install ../calendar-mercury-lab
-```
-
-### npm 배포 후 (예정)
-
-```bash
-npm install calendar-mercury-lab
 ```
 
 ---
