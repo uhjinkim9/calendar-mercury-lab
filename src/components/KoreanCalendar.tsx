@@ -93,10 +93,10 @@ function Popover({ payload, onAction, onClose, renderDropdown }: PopoverProps) {
   const ref = useRef<HTMLDivElement>(null);
   const { clientX, clientY, date, events } = payload;
 
-  // Clamp so popover never overflows the right/bottom edge
+  // position:fixed → viewport 기준이므로 scroll offset 불필요
   const style: React.CSSProperties = {
-    top: clientY + window.scrollY + 8,
-    left: Math.min(clientX + window.scrollX + 8, window.innerWidth - 180),
+    top: clientY + 8,
+    left: Math.min(clientX + 8, window.innerWidth - 180),
   };
 
   useEffect(() => {
@@ -177,7 +177,12 @@ interface MonthViewProps {
   holidays: Map<string, Holiday>;
   visibleCalendarIds: Set<string>;
   calendarColorMap: Map<string, string>;
-  onCellClick: (date: string, rect: DOMRect, clientX: number, clientY: number) => void;
+  onCellClick: (
+    date: string,
+    rect: DOMRect,
+    clientX: number,
+    clientY: number,
+  ) => void;
   onEventClick: (event: CalendarEvent) => void;
 }
 
@@ -298,7 +303,12 @@ interface WeekViewProps {
   holidays: Map<string, Holiday>;
   visibleCalendarIds: Set<string>;
   calendarColorMap: Map<string, string>;
-  onCellClick: (date: string, rect: DOMRect, clientX: number, clientY: number) => void;
+  onCellClick: (
+    date: string,
+    rect: DOMRect,
+    clientX: number,
+    clientY: number,
+  ) => void;
   onEventClick: (event: CalendarEvent) => void;
 }
 
