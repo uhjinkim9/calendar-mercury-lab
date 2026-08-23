@@ -1,7 +1,7 @@
 # calendar-mercury-lab
 
-Next.js & React 기반의 고성능 · 반응형 · 다중 캘린더 라이브러리입니다.  
-FullCalendar 수준의 유연성을 제공하면서 번들 크기는 **12KB 이하**로 유지합니다.
+Next.js & React 기반의 반응형 · 다중 캘린더 라이브러리입니다.  
+번들 크기 **12KB 이하**를 목표로 가볍게 만들었습니다.
 
 ## 특징
 
@@ -41,8 +41,8 @@ npm install calendar-mercury-lab
 ## 빠른 시작
 
 ```tsx
-import { KoreanCalendar } from 'calendar-mercury-lab';
-import 'calendar-mercury-lab/styles';
+import { KoreanCalendar } from "calendar-mercury-lab";
+import "calendar-mercury-lab/styles";
 
 export default function Page() {
   return <KoreanCalendar view="month" />;
@@ -53,19 +53,19 @@ export default function Page() {
 
 ## Props
 
-| Prop | 타입 | 설명 |
-|---|---|---|
-| `view` | `'day' \| 'week' \| 'month' \| 'year'` | 초기 뷰 모드 |
-| `currentDate` | `string` (ISO) | 표시할 날짜 (controlled) |
-| `events` | `CalendarEvent[]` | 일정 목록 |
-| `calendars` | `CalendarSource[]` | 캘린더 소스 (색상·이름) |
-| `holidayConfig` | `{ apiKey: string; country?: string }` | 공공데이터 API 키 |
-| `fetchHolidays` | `(year, month) => Promise<Holiday[]>` | 커스텀 공휴일 로더 |
-| `theme` | `CalendarTheme` | CSS 변수 오버라이드 객체 |
-| `onCellClick` | `(payload) => void` | 날짜 셀 클릭 콜백 |
-| `onDropdownAction` | `(payload) => void` | 드롭다운 액션 콜백 |
-| `onEventClick` | `(event) => void` | 이벤트 칩 클릭 콜백 |
-| `renderDropdown` | `(payload, close) => ReactNode` | 드롭다운 커스텀 렌더 |
+| Prop               | 타입                                   | 설명                     |
+| ------------------ | -------------------------------------- | ------------------------ |
+| `view`             | `'day' \| 'week' \| 'month' \| 'year'` | 초기 뷰 모드             |
+| `currentDate`      | `string` (ISO)                         | 표시할 날짜 (controlled) |
+| `events`           | `CalendarEvent[]`                      | 일정 목록                |
+| `calendars`        | `CalendarSource[]`                     | 캘린더 소스 (색상·이름)  |
+| `holidayConfig`    | `{ apiKey: string; country?: string }` | 공공데이터 API 키        |
+| `fetchHolidays`    | `(year, month) => Promise<Holiday[]>`  | 커스텀 공휴일 로더       |
+| `theme`            | `CalendarTheme`                        | CSS 변수 오버라이드 객체 |
+| `onCellClick`      | `(payload) => void`                    | 날짜 셀 클릭 콜백        |
+| `onDropdownAction` | `(payload) => void`                    | 드롭다운 액션 콜백       |
+| `onEventClick`     | `(event) => void`                      | 이벤트 칩 클릭 콜백      |
+| `renderDropdown`   | `(payload, close) => ReactNode`        | 드롭다운 커스텀 렌더     |
 
 ---
 
@@ -81,22 +81,22 @@ export default function Page() {
 
 ```tsx
 const CALENDARS = [
-  { id: 'personal', name: '개인', color: '#3182ce' },
-  { id: 'work',     name: '업무', color: '#38a169' },
+  { id: "personal", name: "개인", color: "#3182ce" },
+  { id: "work", name: "업무", color: "#38a169" },
 ];
 
 const EVENTS = [
   {
-    id: 'e1',
-    calendarId: 'personal',
-    title: '생일 파티',
-    start: '2026-08-10',
-    end: '2026-08-10',
+    id: "e1",
+    calendarId: "personal",
+    title: "생일 파티",
+    start: "2026-08-10",
+    end: "2026-08-10",
     allDay: true,
   },
 ];
 
-<KoreanCalendar calendars={CALENDARS} events={EVENTS} />
+<KoreanCalendar calendars={CALENDARS} events={EVENTS} />;
 ```
 
 ### 반복 일정
@@ -134,9 +134,9 @@ const EVENTS = [
 ```tsx
 <KoreanCalendar
   theme={{
-    '--kc-primary': '#e53e3e',
-    '--kc-today-bg': '#fff5f5',
-    '--kc-holiday': '#c53030',
+    "--kc-primary": "#e53e3e",
+    "--kc-today-bg": "#fff5f5",
+    "--kc-holiday": "#c53030",
   }}
 />
 ```
@@ -159,7 +159,12 @@ const EVENTS = [
 <KoreanCalendar
   renderDropdown={(payload, close) => (
     <div>
-      <button onClick={() => { openModal(payload.date); close(); }}>
+      <button
+        onClick={() => {
+          openModal(payload.date);
+          close();
+        }}
+      >
         + 새 일정
       </button>
     </div>
@@ -171,18 +176,18 @@ const EVENTS = [
 
 ## 지원 CSS 변수
 
-| 변수 | 기본값 | 설명 |
-|---|---|---|
-| `--kc-bg` | `#ffffff` | 배경색 |
-| `--kc-surface` | `#f8f9fa` | 툴바·헤더 배경 |
-| `--kc-border` | `#e2e8f0` | 테두리 색 |
-| `--kc-text` | `#1a202c` | 기본 텍스트 |
-| `--kc-text-muted` | `#718096` | 보조 텍스트 |
-| `--kc-primary` | `#3182ce` | 주 색상 (오늘·버튼) |
-| `--kc-primary-light` | `#ebf4ff` | 주 색상 연하게 |
-| `--kc-holiday` | `#e53e3e` | 공휴일·일요일 색 |
-| `--kc-today-bg` | `#ebf8ff` | 오늘 셀 배경 |
-| `--kc-weekend` | `#fc8181` | 토요일 색 |
+| 변수                 | 기본값    | 설명                |
+| -------------------- | --------- | ------------------- |
+| `--kc-bg`            | `#ffffff` | 배경색              |
+| `--kc-surface`       | `#f8f9fa` | 툴바·헤더 배경      |
+| `--kc-border`        | `#e2e8f0` | 테두리 색           |
+| `--kc-text`          | `#1a202c` | 기본 텍스트         |
+| `--kc-text-muted`    | `#718096` | 보조 텍스트         |
+| `--kc-primary`       | `#3182ce` | 주 색상 (오늘·버튼) |
+| `--kc-primary-light` | `#ebf4ff` | 주 색상 연하게      |
+| `--kc-holiday`       | `#e53e3e` | 공휴일·일요일 색    |
+| `--kc-today-bg`      | `#ebf8ff` | 오늘 셀 배경        |
+| `--kc-weekend`       | `#fc8181` | 토요일 색           |
 
 ---
 
@@ -193,21 +198,21 @@ interface CalendarEvent {
   id: string;
   calendarId: string;
   title: string;
-  start: string;          // 'YYYY-MM-DD' or ISO 8601
+  start: string; // 'YYYY-MM-DD' or ISO 8601
   end: string;
   allDay?: boolean;
   color?: string;
   recurrence?: RecurrenceRule;
-  exceptionDates?: string[];  // 반복 제외 날짜
+  exceptionDates?: string[]; // 반복 제외 날짜
 }
 
 interface RecurrenceRule {
-  freq: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+  freq: "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY";
   interval?: number;
-  until?: string;         // 'YYYY-MM-DD'
+  until?: string; // 'YYYY-MM-DD'
   count?: number;
-  byDay?: number[];       // 0=일, 1=월, ..., 6=토
-  byMonthDay?: number;    // 1~31
+  byDay?: number[]; // 0=일, 1=월, ..., 6=토
+  byMonthDay?: number; // 1~31
 }
 
 interface CalendarSource {
