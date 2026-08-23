@@ -1,6 +1,6 @@
 {
   "name": "calendar-mercury-lab",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A flexible, responsive Korean calendar React library with holiday support, recurring events, and multi-calendar views.",
   "author": "uhjinkim9",
   "license": "MIT",
