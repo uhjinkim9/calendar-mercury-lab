@@ -49,6 +49,34 @@ const EVENTS: CalendarEvent[] = [
     allDay: true,
     recurrence: { freq: "WEEKLY", byDay: [1] }, // 매주 월요일
   },
+  {
+    id: "e5",
+    calendarId: "work",
+    title: "팀 스탠드업",
+    start: "2026-08-24T09:00:00",
+    end: "2026-08-24T09:30:00",
+  },
+  {
+    id: "e6",
+    calendarId: "personal",
+    title: "점심 약속",
+    start: "2026-08-24T12:00:00",
+    end: "2026-08-24T13:30:00",
+  },
+  {
+    id: "e7",
+    calendarId: "work",
+    title: "코드 리뷰",
+    start: "2026-08-24T14:00:00",
+    end: "2026-08-24T15:30:00",
+  },
+  {
+    id: "e8",
+    calendarId: "personal",
+    title: "운동",
+    start: "2026-08-24T18:00:00",
+    end: "2026-08-24T19:00:00",
+  },
 ];
 
 function App() {
@@ -72,6 +100,7 @@ function App() {
         view="month"
         events={EVENTS}
         calendars={CALENDARS}
+        showLunar
         onDropdownAction={handleDropdown}
         onEventClick={(ev) => console.log("[event click]", ev.title)}
       />

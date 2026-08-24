@@ -223,6 +223,17 @@
   text-overflow: ellipsis;
 }
 
+.kc-day-cell__lunar {
+  font-size: 0.6rem;
+  color: var(--kc-text-muted);
+  line-height: 1.2;
+}
+
+.kc-day-cell__lunar--new {
+  color: var(--kc-primary);
+  font-weight: 600;
+}
+
 /* ─── Events ───────────────────────────────────────────────────────────────── */
 
 .kc-event-chip {
@@ -247,6 +258,22 @@
   background: transparent;
   color: var(--kc-text-muted);
   font-size: 0.65rem;
+}
+
+.kc-event-list-popover__header {
+  padding: 8px 16px 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--kc-text-muted);
+  border-bottom: 1px solid var(--kc-border);
+}
+
+.kc-event-list-popover__dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 /* ─── Week View ────────────────────────────────────────────────────────────── */
@@ -286,6 +313,59 @@
   height: 48px;
   border-bottom: 1px solid var(--kc-border);
   position: relative;
+  cursor: pointer;
+}
+
+.kc-week-grid__slots {
+  position: relative;
+  overflow: hidden;
+}
+
+.kc-time-block {
+  position: absolute;
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 0.7rem;
+  color: #fff;
+  overflow: hidden;
+  cursor: pointer;
+  box-sizing: border-box;
+  z-index: 1;
+  filter: brightness(0.92);
+}
+
+.kc-time-block:hover {
+  filter: brightness(1);
+  z-index: 2;
+}
+
+.kc-time-block__title {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+}
+
+.kc-now-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #e53e3e;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.kc-now-line::before {
+  content: "";
+  position: absolute;
+  left: -4px;
+  top: -4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #e53e3e;
 }
 
 .kc-week-grid__day-header {

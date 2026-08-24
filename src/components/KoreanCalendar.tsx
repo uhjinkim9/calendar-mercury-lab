@@ -24,6 +24,7 @@ import {
   parseDate,
   toDateString,
 } from "../utils/dateUtils";
+import { formatLunarCell, toLunarDate } from "../utils/lunarUtils";
 import "../styles/calendar.css";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -44,6 +45,80 @@ const MONTH_NAMES = [
   "12월",
 ];
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
+const SLOT_H = 48; // must match .kc-week-grid__time-slot height in CSS
+
+function isAllDay(ev: CalendarEvent): boolean {
+  return !!(ev.allDay || !ev.start.includes("T"));
+}
+
+function getEventMinutes(
+  ev: CalendarEvent,
+  dateStr: string,
+): { startMin: number; endMin: number } | null {
+  if (isAllDay(ev)) return null;
+  const s = new Date(ev.start);
+  const e = new Date(ev.end);
+  const startMin =
+    toDateString(s) === dateStr ? s.getHours() * 60 + s.getMinutes() : 0;
+  const endMin =
+    toDateString(e) === dateStr ? e.getHours() * 60 + e.getMinutes() : 24 * 60;
+  return { startMin, endMin: Math.max(endMin, startMin + 30) };
+}
+
+interface TimedEventLayout {
+  event: CalendarEvent;
+  startMin: number;
+  endMin: number;
+  col: number;
+  cols: number;
+}
+
+function layoutTimedEvents(
+  timedEvents: CalendarEvent[],
+  dateStr: string,
+): TimedEventLayout[] {
+  const items: TimedEventLayout[] = timedEvents
+    .map((ev) => {
+      const mins = getEventMinutes(ev, dateStr);
+      return mins ? { event: ev, ...mins, col: 0, cols: 1 } : null;
+    })
+    .filter((x): x is TimedEventLayout => x !== null);
+
+  items.sort((a, b) => a.startMin - b.startMin);
+
+  const colEnds: number[] = [];
+  for (const item of items) {
+    let placed = false;
+    for (let c = 0; c < colEnds.length; c++) {
+      if (colEnds[c] <= item.startMin) {
+        item.col = c;
+        colEnds[c] = item.endMin;
+        placed = true;
+        break;
+      }
+    }
+    if (!placed) {
+      item.col = colEnds.length;
+      colEnds.push(item.endMin);
+    }
+  }
+
+  for (const item of items) {
+    let maxCol = item.col;
+    for (const other of items) {
+      if (
+        other !== item &&
+        other.startMin < item.endMin &&
+        other.endMin > item.startMin
+      ) {
+        maxCol = Math.max(maxCol, other.col);
+      }
+    }
+    item.cols = maxCol + 1;
+  }
+
+  return items;
+}
 
 // ─── Holiday fetcher (공공데이터포털 기반 stub) ────────────────────────────────
 
@@ -78,6 +153,83 @@ async function defaultFetchHolidays(
   } catch {
     return [];
   }
+}
+
+// ─── Event List Popover ──────────────────────────────────────────────────────
+
+interface EventListPopoverState {
+  date: string;
+  events: CalendarEvent[];
+  clientX: number;
+  clientY: number;
+}
+
+interface EventListPopoverProps extends EventListPopoverState {
+  calendarColorMap: Map<string, string>;
+  onEventClick: (event: CalendarEvent) => void;
+  onClose: () => void;
+}
+
+function EventListPopover({
+  date,
+  events,
+  clientX,
+  clientY,
+  calendarColorMap,
+  onEventClick,
+  onClose,
+}: EventListPopoverProps) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  const style: React.CSSProperties = {
+    top: clientY + 8,
+    left: Math.min(clientX + 8, window.innerWidth - 220),
+  };
+
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
+    }
+    document.addEventListener("keydown", handleKey);
+    document.addEventListener("mousedown", handleClick);
+    return () => {
+      document.removeEventListener("keydown", handleKey);
+      document.removeEventListener("mousedown", handleClick);
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      ref={ref}
+      className="kc-popover kc-event-list-popover"
+      style={style}
+      role="dialog"
+    >
+      <div className="kc-event-list-popover__header">{date}</div>
+      {events.map((ev) => (
+        <button
+          key={ev.id}
+          className="kc-popover__item"
+          onClick={() => {
+            onEventClick(ev);
+            onClose();
+          }}
+        >
+          <span
+            className="kc-event-list-popover__dot"
+            style={{
+              background:
+                ev.color ?? calendarColorMap.get(ev.calendarId) ?? "#3182ce",
+            }}
+          />
+          {ev.title}
+        </button>
+      ))}
+    </div>
+  );
 }
 
 // ─── Popover ──────────────────────────────────────────────────────────────────
@@ -184,6 +336,13 @@ interface MonthViewProps {
     clientY: number,
   ) => void;
   onEventClick: (event: CalendarEvent) => void;
+  onMoreClick: (
+    date: string,
+    events: CalendarEvent[],
+    clientX: number,
+    clientY: number,
+  ) => void;
+  showLunar?: boolean;
 }
 
 function MonthView({
@@ -196,6 +355,8 @@ function MonthView({
   calendarColorMap,
   onCellClick,
   onEventClick,
+  onMoreClick,
+  showLunar,
 }: MonthViewProps) {
   const grid = useMemo(() => getMonthGrid(year, month, 0), [year, month]);
 
@@ -257,6 +418,21 @@ function MonthView({
               }
             >
               <div className="kc-day-cell__number">{date.getDate()}</div>
+              {showLunar &&
+                (() => {
+                  const lunar = toLunarDate(
+                    date.getFullYear(),
+                    date.getMonth() + 1,
+                    date.getDate(),
+                  );
+                  return lunar ? (
+                    <div
+                      className={`kc-day-cell__lunar${lunar.day === 1 ? " kc-day-cell__lunar--new" : ""}`}
+                    >
+                      {formatLunarCell(lunar)}
+                    </div>
+                  ) : null;
+                })()}
               {holiday && (
                 <div className="kc-day-cell__holiday" title={holiday.name}>
                   {holiday.name}
@@ -282,8 +458,15 @@ function MonthView({
                 </span>
               ))}
               {dayEvents.length > MAX_VISIBLE && (
-                <span className="kc-event-chip kc-event-chip--more">
-                  +{dayEvents.length - MAX_VISIBLE}개
+                <span
+                  className="kc-event-chip kc-event-chip--more"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onMoreClick(dateStr, dayEvents, e.clientX, e.clientY);
+                  }}
+                  style={{ cursor: "pointer" }}
+                >
+                  +{dayEvents.length - MAX_VISIBLE}개 더보기
                 </span>
               )}
             </div>
@@ -348,6 +531,14 @@ function WeekView({
         const dayEvents = getEventsForDate(events, dateStr, visibleCalendarIds);
         const holiday = holidays.get(dateStr);
         const isToday = dateStr === today;
+        const allDayEvs = dayEvents.filter(isAllDay);
+        const timedLayout = layoutTimedEvents(
+          dayEvents.filter((ev) => !isAllDay(ev)),
+          dateStr,
+        );
+        const nowMin = isToday
+          ? new Date().getHours() * 60 + new Date().getMinutes()
+          : -1;
 
         return (
           <div key={dateStr} className="kc-week-grid__day-col">
@@ -369,7 +560,7 @@ function WeekView({
               {holiday && (
                 <div className="kc-day-cell__holiday">{holiday.name}</div>
               )}
-              {dayEvents.map((ev) => (
+              {allDayEvs.map((ev) => (
                 <span
                   key={ev.id}
                   className="kc-event-chip"
@@ -388,21 +579,50 @@ function WeekView({
                 </span>
               ))}
             </div>
-            {HOURS.map((h) => (
-              <div
-                key={h}
-                className="kc-week-grid__slot"
-                style={{ cursor: "pointer" }}
-                onClick={(e) =>
-                  onCellClick(
-                    dateStr,
-                    (e.currentTarget as HTMLElement).getBoundingClientRect(),
-                    e.clientX,
-                    e.clientY,
-                  )
-                }
-              />
-            ))}
+            <div className="kc-week-grid__slots">
+              {HOURS.map((h) => (
+                <div
+                  key={h}
+                  className="kc-week-grid__slot"
+                  onClick={(e) =>
+                    onCellClick(
+                      dateStr,
+                      (e.currentTarget as HTMLElement).getBoundingClientRect(),
+                      e.clientX,
+                      e.clientY,
+                    )
+                  }
+                />
+              ))}
+              {nowMin >= 0 && (
+                <div
+                  className="kc-now-line"
+                  style={{ top: (nowMin / 60) * SLOT_H }}
+                />
+              )}
+              {timedLayout.map(({ event, startMin, endMin, col, cols }) => (
+                <div
+                  key={event.id}
+                  className="kc-time-block"
+                  style={{
+                    top: (startMin / 60) * SLOT_H,
+                    height: Math.max(((endMin - startMin) / 60) * SLOT_H, 20),
+                    left: `calc(${(col / cols) * 100}% + 1px)`,
+                    width: `calc(${(1 / cols) * 100}% - 2px)`,
+                    background:
+                      event.color ??
+                      calendarColorMap.get(event.calendarId) ??
+                      "#3182ce",
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEventClick(event);
+                  }}
+                >
+                  <span className="kc-time-block__title">{event.title}</span>
+                </div>
+              ))}
+            </div>
           </div>
         );
       })}
@@ -442,6 +662,14 @@ function DayView({
   const dayEvents = getEventsForDate(events, dateStr, visibleCalendarIds);
   const holiday = holidays.get(dateStr);
   const isToday = dateStr === today;
+  const allDayEvs = dayEvents.filter(isAllDay);
+  const timedLayout = layoutTimedEvents(
+    dayEvents.filter((ev) => !isAllDay(ev)),
+    dateStr,
+  );
+  const nowMin = isToday
+    ? new Date().getHours() * 60 + new Date().getMinutes()
+    : -1;
 
   return (
     <div className="kc-day-view">
@@ -463,45 +691,67 @@ function DayView({
           {holiday && (
             <span className="kc-day-cell__holiday"> — {holiday.name}</span>
           )}
-        </div>
-        <div style={{ padding: 8 }}>
-          {dayEvents.length === 0 && (
-            <div style={{ color: "var(--kc-text-muted)", fontSize: "0.85rem" }}>
-              일정이 없습니다.
-            </div>
-          )}
-          {dayEvents.map((ev) => (
-            <div
+          {allDayEvs.map((ev) => (
+            <span
               key={ev.id}
               className="kc-event-chip"
               style={{
                 background:
                   ev.color ?? calendarColorMap.get(ev.calendarId) ?? "#3182ce",
-                marginBottom: 4,
-                padding: "6px 10px",
-                cursor: "pointer",
               }}
-              onClick={() => onEventClick(ev)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onEventClick(ev);
+              }}
             >
               {ev.title}
+            </span>
+          ))}
+        </div>
+        <div className="kc-week-grid__slots">
+          {HOURS.map((h) => (
+            <div
+              key={h}
+              className="kc-week-grid__slot"
+              onClick={(e) =>
+                onCellClick(
+                  dateStr,
+                  (e.currentTarget as HTMLElement).getBoundingClientRect(),
+                  e.clientX,
+                  e.clientY,
+                )
+              }
+            />
+          ))}
+          {nowMin >= 0 && (
+            <div
+              className="kc-now-line"
+              style={{ top: (nowMin / 60) * SLOT_H }}
+            />
+          )}
+          {timedLayout.map(({ event, startMin, endMin, col, cols }) => (
+            <div
+              key={event.id}
+              className="kc-time-block"
+              style={{
+                top: (startMin / 60) * SLOT_H,
+                height: Math.max(((endMin - startMin) / 60) * SLOT_H, 20),
+                left: `calc(${(col / cols) * 100}% + 1px)`,
+                width: `calc(${(1 / cols) * 100}% - 2px)`,
+                background:
+                  event.color ??
+                  calendarColorMap.get(event.calendarId) ??
+                  "#3182ce",
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onEventClick(event);
+              }}
+            >
+              <span className="kc-time-block__title">{event.title}</span>
             </div>
           ))}
         </div>
-        {HOURS.map((h) => (
-          <div
-            key={h}
-            className="kc-week-grid__slot"
-            style={{ cursor: "pointer" }}
-            onClick={(e) =>
-              onCellClick(
-                dateStr,
-                (e.currentTarget as HTMLElement).getBoundingClientRect(),
-                e.clientX,
-                e.clientY,
-              )
-            }
-          />
-        ))}
       </div>
     </div>
   );
@@ -595,6 +845,7 @@ export function KoreanCalendar({
   onDropdownAction,
   onEventClick,
   renderDropdown,
+  showLunar = false,
   className = "",
 }: KoreanCalendarProps) {
   const today = toDateString(new Date());
@@ -605,6 +856,8 @@ export function KoreanCalendar({
   );
   const [holidays, setHolidays] = useState<Map<string, Holiday>>(new Map());
   const [popover, setPopover] = useState<CellClickPayload | null>(null);
+  const [eventListPopover, setEventListPopover] =
+    useState<EventListPopoverState | null>(null);
   // Track which calendar sources are visible
   const [hiddenCalendars, setHiddenCalendars] = useState<Set<string>>(
     new Set(),
@@ -814,6 +1067,10 @@ export function KoreanCalendar({
           calendarColorMap={calendarColorMap}
           onCellClick={handleCellClick}
           onEventClick={handleEventClick}
+          onMoreClick={(date, evs, x, y) =>
+            setEventListPopover({ date, events: evs, clientX: x, clientY: y })
+          }
+          showLunar={showLunar}
         />
       )}
 
@@ -870,6 +1127,16 @@ export function KoreanCalendar({
           onAction={handleDropdownAction}
           onClose={() => setPopover(null)}
           renderDropdown={renderDropdown}
+        />
+      )}
+
+      {/* ── Event List Popover ── */}
+      {eventListPopover && (
+        <EventListPopover
+          {...eventListPopover}
+          calendarColorMap={calendarColorMap}
+          onEventClick={handleEventClick}
+          onClose={() => setEventListPopover(null)}
         />
       )}
     </div>

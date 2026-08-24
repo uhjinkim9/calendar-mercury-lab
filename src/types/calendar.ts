@@ -121,5 +121,8 @@ export interface KoreanCalendarProps {
     close: () => void,
   ) => React.ReactNode;
 
+  /** Show Korean lunar date in month-view cells */
+  showLunar?: boolean;
+
   className?: string;
 }

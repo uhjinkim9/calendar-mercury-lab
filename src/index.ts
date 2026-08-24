@@ -22,3 +22,5 @@ export {
   parseDate,
   toDateString,
 } from "./utils/dateUtils";
+export { formatLunarCell, toLunarDate } from "./utils/lunarUtils";
+export type { LunarDate } from "./utils/lunarUtils";
