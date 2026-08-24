@@ -156,9 +156,13 @@ const EVENTS = [
 
 ### 공휴일 연동
 
+[공공데이터포털](https://www.data.go.kr)에서 **한국천문연구원_특일 정보** API를 신청한 후 발급받은 서비스 키를 사용합니다.
+
+> 검색어: `한국천문연구원 특일 정보` → 「한국천문연구원_특일 정보」 신청 → 일반 인증키(Decoding) 사용
+
 ```tsx
 // 공공데이터포털 API 키 사용
-<KoreanCalendar holidayConfig={{ apiKey: 'YOUR_API_KEY' }} />
+<KoreanCalendar holidayConfig={{ apiKey: 'YOUR_SERVICE_KEY' }} />
 
 // 커스텀 함수로 직접 제공
 <KoreanCalendar
@@ -430,9 +434,13 @@ const EVENTS = [
 
 ### 공휴일 연동
 
+[공공데이터포털](https://www.data.go.kr)에서 **한국천문연구원_특일 정보** API를 신청한 후 발급받은 서비스 키를 사용합니다.
+
+> 검색어: `한국천문연구원 특일 정보` → 「한국천문연구원_특일 정보」 신청 → 일반 인증키(Decoding) 사용
+
 ```tsx
 // 공공데이터포털 API 키 사용
-<KoreanCalendar holidayConfig={{ apiKey: 'YOUR_API_KEY' }} />
+<KoreanCalendar holidayConfig={{ apiKey: 'YOUR_SERVICE_KEY' }} />
 
 // 커스텀 함수로 직접 제공
 <KoreanCalendar
