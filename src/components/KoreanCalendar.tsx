@@ -3,6 +3,7 @@
 import React, {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -180,11 +181,26 @@ function EventListPopover({
   onClose,
 }: EventListPopoverProps) {
   const ref = useRef<HTMLDivElement>(null);
-
-  const style: React.CSSProperties = {
+  const [pos, setPos] = useState<React.CSSProperties>({
+    visibility: "hidden",
     top: clientY + 8,
     left: Math.min(clientX + 8, window.innerWidth - 220),
-  };
+  });
+
+  useLayoutEffect(() => {
+    if (!ref.current) return;
+    const { offsetHeight } = ref.current;
+    const spaceBelow = window.innerHeight - clientY - 8;
+    const top =
+      offsetHeight > spaceBelow
+        ? Math.max(clientY - offsetHeight - 8, 4)
+        : clientY + 8;
+    setPos({
+      visibility: "visible",
+      top,
+      left: Math.min(clientX + 8, window.innerWidth - 220),
+    });
+  }, [clientX, clientY]);
 
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
@@ -205,7 +221,7 @@ function EventListPopover({
     <div
       ref={ref}
       className="kc-popover kc-event-list-popover"
-      style={style}
+      style={pos}
       role="dialog"
     >
       <div className="kc-event-list-popover__header">{date}</div>
@@ -244,12 +260,26 @@ interface PopoverProps {
 function Popover({ payload, onAction, onClose, renderDropdown }: PopoverProps) {
   const ref = useRef<HTMLDivElement>(null);
   const { clientX, clientY, date, events } = payload;
-
-  // position:fixed → viewport 기준이므로 scroll offset 불필요
-  const style: React.CSSProperties = {
+  const [pos, setPos] = useState<React.CSSProperties>({
+    visibility: "hidden",
     top: clientY + 8,
     left: Math.min(clientX + 8, window.innerWidth - 180),
-  };
+  });
+
+  useLayoutEffect(() => {
+    if (!ref.current) return;
+    const { offsetHeight } = ref.current;
+    const spaceBelow = window.innerHeight - clientY - 8;
+    const top =
+      offsetHeight > spaceBelow
+        ? Math.max(clientY - offsetHeight - 8, 4)
+        : clientY + 8;
+    setPos({
+      visibility: "visible",
+      top,
+      left: Math.min(clientX + 8, window.innerWidth - 180),
+    });
+  }, [clientX, clientY]);
 
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
@@ -268,14 +298,14 @@ function Popover({ payload, onAction, onClose, renderDropdown }: PopoverProps) {
 
   if (renderDropdown) {
     return (
-      <div ref={ref} className="kc-popover" style={style} role="menu">
+      <div ref={ref} className="kc-popover" style={pos} role="menu">
         {renderDropdown(payload, onClose)}
       </div>
     );
   }
 
   return (
-    <div ref={ref} className="kc-popover" style={style} role="menu">
+    <div ref={ref} className="kc-popover" style={pos} role="menu">
       <button
         className="kc-popover__item"
         onClick={() => {
