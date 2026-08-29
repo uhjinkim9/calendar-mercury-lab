@@ -66,7 +66,7 @@ export interface CellClickPayload {
   clientY: number;
 }
 
-export type DropdownAction = "create" | "edit" | "delete";
+export type DropdownAction = "create" | "edit" | "duplicate" | "delete";
 
 export interface DropdownActionPayload {
   action: DropdownAction;

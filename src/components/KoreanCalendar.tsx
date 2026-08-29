@@ -332,6 +332,16 @@ function Popover({ payload, onAction, onClose, renderDropdown }: PopoverProps) {
                 ✎ {ev.title} 수정
               </button>
               <button
+                className="kc-popover__item"
+                onClick={() => {
+                  onAction({ action: "duplicate", date, event: ev });
+                  onClose();
+                }}
+                role="menuitem"
+              >
+                ⧉ {ev.title} 복제
+              </button>
+              <button
                 className="kc-popover__item kc-popover__item--danger"
                 onClick={() => {
                   onAction({ action: "delete", date, event: ev });

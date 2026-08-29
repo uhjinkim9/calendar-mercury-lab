@@ -32,12 +32,6 @@ npm install calendar-mercury-lab
 npm install github:uhjinkim9/calendar-mercury-lab
 ```
 
-### 로컬 개발 환경에서 연결
-
-```bash
-npm install ../calendar-mercury-lab
-```
-
 ---
 
 ## 빠른 시작

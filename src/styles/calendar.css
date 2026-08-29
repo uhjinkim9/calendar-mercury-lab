@@ -516,7 +516,7 @@
   }
 
   .kc-day-cell {
-    --kc-cell-min-height: 60px;
+    --kc-cell-min-height: 70px;
     padding: 2px;
   }
 
@@ -525,12 +525,13 @@
   }
 
   .kc-event-chip {
-    display: none; /* show only dot indicator on very small cells */
+    font-size: 0.6rem;
+    padding: 1px 3px;
+    margin-top: 1px;
   }
 
-  .kc-day-cell::after {
-    content: "";
-    display: block;
+  .kc-day-cell__number {
+    font-size: 0.75rem;
   }
 }
 
@@ -543,5 +544,25 @@
 
   .kc-toolbar {
     padding: 6px 10px;
+  }
+
+  .kc-day-cell {
+    --kc-cell-min-height: 54px;
+  }
+
+  /* 초소형 화면: 칩을 색상 막대로 축소 */
+  .kc-event-chip {
+    font-size: 0;
+    height: 5px;
+    border-radius: 2px;
+    padding: 0;
+    margin-top: 2px;
+  }
+
+  /* +N개 더보기 텍스트는 유지 */
+  .kc-event-chip--more {
+    font-size: 0.55rem;
+    height: auto;
+    background: transparent;
   }
 }
