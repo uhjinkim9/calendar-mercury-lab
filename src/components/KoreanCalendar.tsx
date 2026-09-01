@@ -993,7 +993,9 @@ export function KoreanCalendar({
     useState<EventListPopoverState | null>(null);
   const [mobilePanel, setMobilePanel] = useState<MobilePanelState | null>(null);
   const [isMobile, setIsMobile] = useState(
-    () => typeof window !== "undefined" && window.matchMedia("(max-width: 768px)").matches,
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(max-width: 768px)").matches,
   );
   // Track which calendar sources are visible
   const [hiddenCalendars, setHiddenCalendars] = useState<Set<string>>(
