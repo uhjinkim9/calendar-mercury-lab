@@ -476,6 +476,7 @@ interface MonthViewProps {
     clientY: number,
   ) => void;
   showLunar?: boolean;
+  isMobile?: boolean;
 }
 
 function MonthView({
@@ -490,6 +491,7 @@ function MonthView({
   onEventClick,
   onMoreClick,
   showLunar,
+  isMobile,
 }: MonthViewProps) {
   const grid = useMemo(() => getMonthGrid(year, month, 0), [year, month]);
 
@@ -571,36 +573,63 @@ function MonthView({
                   {holiday.name}
                 </div>
               )}
-              {dayEvents.slice(0, MAX_VISIBLE).map((ev) => (
-                <span
-                  key={ev.id}
-                  className="kc-event-chip"
-                  style={{
-                    background:
+              {isMobile ? (
+                // Group events by color → dot + count per group
+                (() => {
+                  const colorCount = new Map<string, number>();
+                  for (const ev of dayEvents) {
+                    const c =
                       ev.color ??
                       calendarColorMap.get(ev.calendarId) ??
-                      "#3182ce",
-                  }}
-                  title={ev.title}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onEventClick(ev);
-                  }}
-                >
-                  {ev.title}
-                </span>
-              ))}
-              {dayEvents.length > MAX_VISIBLE && (
-                <span
-                  className="kc-event-chip kc-event-chip--more"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onMoreClick(dateStr, dayEvents, e.clientX, e.clientY);
-                  }}
-                  style={{ cursor: "pointer" }}
-                >
-                  +{dayEvents.length - MAX_VISIBLE}개 더보기
-                </span>
+                      "#3182ce";
+                    colorCount.set(c, (colorCount.get(c) ?? 0) + 1);
+                  }
+                  return Array.from(colorCount.entries()).map(
+                    ([color, count]) => (
+                      <div key={color} className="kc-color-chip">
+                        <span
+                          className="kc-color-chip__dot"
+                          style={{ background: color }}
+                        />
+                        <span className="kc-color-chip__count">+{count}</span>
+                      </div>
+                    ),
+                  );
+                })()
+              ) : (
+                <>
+                  {dayEvents.slice(0, MAX_VISIBLE).map((ev) => (
+                    <span
+                      key={ev.id}
+                      className="kc-event-chip"
+                      style={{
+                        background:
+                          ev.color ??
+                          calendarColorMap.get(ev.calendarId) ??
+                          "#3182ce",
+                      }}
+                      title={ev.title}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEventClick(ev);
+                      }}
+                    >
+                      {ev.title}
+                    </span>
+                  ))}
+                  {dayEvents.length > MAX_VISIBLE && (
+                    <span
+                      className="kc-event-chip kc-event-chip--more"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onMoreClick(dateStr, dayEvents, e.clientX, e.clientY);
+                      }}
+                      style={{ cursor: "pointer" }}
+                    >
+                      +{dayEvents.length - MAX_VISIBLE}개 더보기
+                    </span>
+                  )}
+                </>
               )}
             </div>
           );
@@ -1225,6 +1254,7 @@ export function KoreanCalendar({
             setEventListPopover({ date, events: evs, clientX: x, clientY: y })
           }
           showLunar={showLunar}
+          isMobile={isMobile}
         />
       )}
 
