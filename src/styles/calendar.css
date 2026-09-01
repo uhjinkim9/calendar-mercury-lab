@@ -516,7 +516,7 @@
   }
 
   .kc-day-cell {
-    --kc-cell-min-height: 70px;
+    --kc-cell-min-height: 64px;
     padding: 2px;
   }
 
@@ -524,10 +524,17 @@
     font-size: 0.95rem;
   }
 
+  /* Chips become small colored bars — detail shown in mobile panel */
   .kc-event-chip {
-    font-size: 0.6rem;
-    padding: 1px 3px;
-    margin-top: 1px;
+    font-size: 0;
+    height: 5px;
+    border-radius: 2px;
+    padding: 0;
+    margin-top: 2px;
+  }
+
+  .kc-event-chip--more {
+    display: none;
   }
 
   .kc-day-cell__number {
@@ -549,20 +556,111 @@
   .kc-day-cell {
     --kc-cell-min-height: 54px;
   }
+}
 
-  /* 초소형 화면: 칩을 색상 막대로 축소 */
-  .kc-event-chip {
-    font-size: 0;
-    height: 5px;
-    border-radius: 2px;
-    padding: 0;
-    margin-top: 2px;
-  }
+/* ─── Mobile Panel ─────────────────────────────────────────────────────────── */
 
-  /* +N개 더보기 텍스트는 유지 */
-  .kc-event-chip--more {
-    font-size: 0.55rem;
-    height: auto;
-    background: transparent;
-  }
+.kc-mobile-panel {
+  border-top: 2px solid var(--kc-primary);
+  background: var(--kc-bg);
+  overflow-y: auto;
+  max-height: 280px;
+  animation: kc-popover-in 150ms ease;
+}
+
+.kc-mobile-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px 8px;
+  border-bottom: 1px solid var(--kc-border);
+}
+
+.kc-mobile-panel__date {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--kc-text);
+}
+
+.kc-mobile-panel__close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--kc-text-muted);
+  padding: 2px 6px;
+  line-height: 1;
+}
+
+.kc-mobile-panel__new {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--kc-border);
+  padding: 10px 16px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: var(--kc-primary);
+  font-weight: 600;
+}
+
+.kc-mobile-panel__new:hover {
+  background: var(--kc-primary-light);
+}
+
+.kc-mobile-panel__empty {
+  padding: 14px 16px;
+  font-size: 0.8rem;
+  color: var(--kc-text-muted);
+}
+
+.kc-mobile-panel__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--kc-border);
+}
+
+.kc-mobile-panel__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.kc-mobile-panel__title {
+  flex: 1;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kc-mobile-panel__actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.kc-mobile-panel__actions button {
+  background: transparent;
+  border: 1px solid var(--kc-border);
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  color: var(--kc-text-muted);
+  transition: background var(--kc-transition);
+}
+
+.kc-mobile-panel__actions button:hover {
+  background: var(--kc-primary-light);
+}
+
+.kc-mobile-panel__delete {
+  color: var(--kc-holiday) !important;
 }

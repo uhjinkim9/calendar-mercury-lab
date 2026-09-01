@@ -359,6 +359,99 @@ function Popover({ payload, onAction, onClose, renderDropdown }: PopoverProps) {
   );
 }
 
+// ─── Mobile Panel ────────────────────────────────────────────────────────────
+
+interface MobilePanelState {
+  date: string;
+  events: CalendarEvent[];
+}
+
+function MobilePanel({
+  date,
+  events,
+  calendarColorMap,
+  onAction,
+  onEventClick,
+  onClose,
+}: MobilePanelState & {
+  calendarColorMap: Map<string, string>;
+  onAction: (p: DropdownActionPayload) => void;
+  onEventClick: (ev: CalendarEvent) => void;
+  onClose: () => void;
+}) {
+  return (
+    <div className="kc-mobile-panel">
+      <div className="kc-mobile-panel__header">
+        <span className="kc-mobile-panel__date">{date}</span>
+        <button
+          className="kc-mobile-panel__close"
+          onClick={onClose}
+          aria-label="닫기"
+        >
+          ✕
+        </button>
+      </div>
+      <button
+        className="kc-mobile-panel__new"
+        onClick={() => {
+          onAction({ action: "create", date });
+          onClose();
+        }}
+      >
+        ＋ 새 일정 등록
+      </button>
+      {events.length === 0 && (
+        <div className="kc-mobile-panel__empty">일정이 없습니다.</div>
+      )}
+      {events.map((ev) => {
+        const color =
+          ev.color ?? calendarColorMap.get(ev.calendarId) ?? "#3182ce";
+        return (
+          <div key={ev.id} className="kc-mobile-panel__item">
+            <span
+              className="kc-mobile-panel__dot"
+              style={{ background: color }}
+            />
+            <span
+              className="kc-mobile-panel__title"
+              onClick={() => onEventClick(ev)}
+            >
+              {ev.title}
+            </span>
+            <div className="kc-mobile-panel__actions">
+              <button
+                onClick={() => {
+                  onAction({ action: "edit", date, event: ev });
+                  onClose();
+                }}
+              >
+                수정
+              </button>
+              <button
+                onClick={() => {
+                  onAction({ action: "duplicate", date, event: ev });
+                  onClose();
+                }}
+              >
+                복제
+              </button>
+              <button
+                className="kc-mobile-panel__delete"
+                onClick={() => {
+                  onAction({ action: "delete", date, event: ev });
+                  onClose();
+                }}
+              >
+                삭제
+              </button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // ─── Month View ───────────────────────────────────────────────────────────────
 
 interface MonthViewProps {
@@ -898,6 +991,10 @@ export function KoreanCalendar({
   const [popover, setPopover] = useState<CellClickPayload | null>(null);
   const [eventListPopover, setEventListPopover] =
     useState<EventListPopoverState | null>(null);
+  const [mobilePanel, setMobilePanel] = useState<MobilePanelState | null>(null);
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(max-width: 768px)").matches,
+  );
   // Track which calendar sources are visible
   const [hiddenCalendars, setHiddenCalendars] = useState<Set<string>>(
     new Set(),
@@ -913,6 +1010,14 @@ export function KoreanCalendar({
   useEffect(() => {
     if (currentDateProp) setCurrentDate(parseDate(currentDateProp));
   }, [currentDateProp]);
+
+  // Track screen width for mobile panel vs popover
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
 
   // Apply CSS variable theme overrides
   useEffect(() => {
@@ -983,9 +1088,16 @@ export function KoreanCalendar({
         clientY,
       };
       onCellClick?.(payload);
-      setPopover(payload);
+      if (isMobile) {
+        // Toggle: close if same date tapped again
+        setMobilePanel((prev) =>
+          prev?.date === dateStr ? null : { date: dateStr, events: dayEvents },
+        );
+      } else {
+        setPopover(payload);
+      }
     },
-    [events, visibleCalendarIds, onCellClick],
+    [events, visibleCalendarIds, onCellClick, isMobile],
   );
 
   const handleEventClick = useCallback(
@@ -1177,6 +1289,17 @@ export function KoreanCalendar({
           calendarColorMap={calendarColorMap}
           onEventClick={handleEventClick}
           onClose={() => setEventListPopover(null)}
+        />
+      )}
+
+      {/* ── Mobile Day Panel ── */}
+      {mobilePanel && (
+        <MobilePanel
+          {...mobilePanel}
+          calendarColorMap={calendarColorMap}
+          onAction={handleDropdownAction}
+          onEventClick={handleEventClick}
+          onClose={() => setMobilePanel(null)}
         />
       )}
     </div>

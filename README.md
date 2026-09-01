@@ -209,6 +209,29 @@ const EVENTS = [
 />
 ```
 
+### 일정 복제
+
+날짜 셀을 클릭하면 나타나는 드롭다운에 **⊩ {제목} 복제** 버튼이 기본 제공됩니다.  
+`onDropdownAction`에서 `action === "duplicate"` 케이스를 처리해 복제 로직을 구현하세요.
+
+```tsx
+<KoreanCalendar
+  onDropdownAction={(payload) => {
+    if (payload.action === "duplicate" && payload.event) {
+      const original = payload.event;
+      setEvents((prev) => [
+        ...prev,
+        {
+          ...original,
+          id: crypto.randomUUID(),
+          title: `${original.title} (복사)`,
+        },
+      ]);
+    }
+  }}
+/>
+```
+
 ---
 
 ## 지원 CSS 변수
